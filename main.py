@@ -22,7 +22,8 @@ playerX_change = 0
 enemyImg = p.image.load("resources/enemy.png")
 enemyX = random.random() * 736
 enemyY = random.randint(50, 150)
-enemyX_change = 0
+enemyX_change = 0.6
+enemyY_change=30
 
 
 # method to draw the playerObject on the screen
@@ -54,7 +55,7 @@ while running:
                 print("Right arrow is pressed")
             else:
                 print("Keystroke event")
-        elif event.type == p.KEYUP:
+        if event.type == p.KEYUP:
             if event.key == p.K_LEFT or event.key == p.K_RIGHT:
                 playerX_change = 0
                 print("Keystroke released")
@@ -65,6 +66,11 @@ while running:
         playerX = 0
     elif playerX >= 736:
         playerX = 736
+
+    enemyX += enemyX_change
+    if enemyX <= 0 or enemyX >= 736:
+        enemyX_change *= -1
+        enemyY+=enemyY_change
     player(playerX, playerY)
     enemy(enemyX, enemyY)
     p.display.update()
