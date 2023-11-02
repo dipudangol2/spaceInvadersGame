@@ -7,6 +7,9 @@ p.init()
 # Create the screen
 screen = p.display.set_mode((800, 600))
 
+# Add Backgroundd
+background = p.image.load("resources/background.png")
+
 # Set Title and Icon
 p.display.set_caption("Space Invaders")
 icon = p.image.load("resources/ufo.png")
@@ -23,7 +26,7 @@ enemyImg = p.image.load("resources/enemy.png")
 enemyX = random.random() * 736
 enemyY = random.randint(50, 150)
 enemyX_change = 0.6
-enemyY_change=30
+enemyY_change = 30
 
 
 # method to draw the playerObject on the screen
@@ -39,6 +42,8 @@ def enemy(x, y):
 running = True
 while running:
     screen.fill((0, 0, 0))
+    # Background Image
+    screen.blit(background, (0, 0))
     # iterates through all the event happening inside the window
     for event in p.event.get():
         if event.type == p.QUIT:
@@ -70,7 +75,7 @@ while running:
     enemyX += enemyX_change
     if enemyX <= 0 or enemyX >= 736:
         enemyX_change *= -1
-        enemyY+=enemyY_change
+        enemyY += enemyY_change
     player(playerX, playerY)
     enemy(enemyX, enemyY)
     p.display.update()
