@@ -32,7 +32,7 @@ enemyY_change = 20
 bulletImg = p.image.load("resources/bullet.png").convert_alpha()
 bulletX = 0
 bulletY = 480
-bulletY_change = 1
+bulletY_change = 2.5
 # Ready: Bullet can't be seen
 # Fire: Bullet can be seen
 bullet_state = "ready"
@@ -68,20 +68,21 @@ while running:
             if event.key == p.K_ESCAPE:
                 running = False
             if event.key == p.K_LEFT:
-                playerX_change = -0.75
+                playerX_change = -1
                 print("Left arrow is pressed")
             elif event.key == p.K_RIGHT:
-                playerX_change = 0.75
+                playerX_change = 1
                 print("Right arrow is pressed")
             elif event.key == p.K_SPACE:
-                fire_bullet(playerX, bulletY)
+                if bullet_state == "ready":
+                    bulletX = playerX
+                    fire_bullet(bulletX, bulletY)
             else:
                 print("Keystroke event")
         if event.type == p.KEYUP:
             if event.key == p.K_LEFT or event.key == p.K_RIGHT:
                 playerX_change = 0
                 print("Keystroke released")
-                break
 
     playerX += playerX_change
     if playerX <= 0:
@@ -95,13 +96,12 @@ while running:
         enemyY += enemyY_change
 
     # Bullet Movement
-    if bullet_state is "fire":
-        fire_bullet(playerX, bulletY)
+    if bulletY < 0:
+        bulletY = 480
+        bullet_state = "ready"
+    if bullet_state == "fire":
+        fire_bullet(bulletX, bulletY)
         bulletY -= bulletY_change
-
-    # #send the enemy to the initial position when it goes out of screen
-    # if enemyY>=536 and enemyX>=736:
-    #     enemyY = random.randint(50, 150)
     player(playerX, playerY)
     enemy(enemyX, enemyY)
     p.display.update()
