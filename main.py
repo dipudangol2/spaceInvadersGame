@@ -8,15 +8,15 @@ p.init()
 screen = p.display.set_mode((800, 600))
 
 # Add Backgroundd
-background = p.image.load("resources/background.png")
+background = p.image.load("resources/background.png").convert()
 
 # Set Title and Icon
 p.display.set_caption("Space Invaders")
-icon = p.image.load("resources/ufo.png")
+icon = p.image.load("resources/ufo.png").convert_alpha()
 p.display.set_icon(icon)
 
 # Player
-playerImg = p.image.load("resources/player.png")
+playerImg = p.image.load("resources/player.png").convert_alpha()
 playerX = 370
 playerY = 480
 playerX_change = 0
@@ -25,8 +25,17 @@ playerX_change = 0
 enemyImg = p.image.load("resources/enemy.png")
 enemyX = random.random() * 736
 enemyY = random.randint(50, 150)
-enemyX_change = 0.6
-enemyY_change = 30
+enemyX_change = 0.75
+enemyY_change = 20
+
+# Bullet
+bulletImg = p.image.load("resources/bullet.png").convert_alpha()
+bulletX = 0
+bulletY = 480
+bulletY_change = 1
+# Ready: Bullet can't be seen
+# Fire: Bullet can be seen
+bullet_state = "ready"
 
 
 # method to draw the playerObject on the screen
@@ -36,6 +45,12 @@ def player(x, y):
 
 def enemy(x, y):
     screen.blit(enemyImg, (x, y))
+
+
+def fire_bullet(x, y):
+    global bullet_state
+    bullet_state = "fire"
+    screen.blit(bulletImg, (x + 16, y + 10))
 
 
 # Game Loop until Player presses the close button
@@ -53,11 +68,13 @@ while running:
             if event.key == p.K_ESCAPE:
                 running = False
             if event.key == p.K_LEFT:
-                playerX_change = -0.3
+                playerX_change = -0.75
                 print("Left arrow is pressed")
             elif event.key == p.K_RIGHT:
-                playerX_change = 0.3
+                playerX_change = 0.75
                 print("Right arrow is pressed")
+            elif event.key == p.K_SPACE:
+                fire_bullet(playerX, bulletY)
             else:
                 print("Keystroke event")
         if event.type == p.KEYUP:
@@ -76,6 +93,15 @@ while running:
     if enemyX <= 0 or enemyX >= 736:
         enemyX_change *= -1
         enemyY += enemyY_change
+
+    # Bullet Movement
+    if bullet_state is "fire":
+        fire_bullet(playerX, bulletY)
+        bulletY -= bulletY_change
+
+    # #send the enemy to the initial position when it goes out of screen
+    # if enemyY>=536 and enemyX>=736:
+    #     enemyY = random.randint(50, 150)
     player(playerX, playerY)
     enemy(enemyX, enemyY)
     p.display.update()
