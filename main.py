@@ -1,5 +1,6 @@
 import pygame as p
-import random
+import random as r
+import math as m
 
 # Initialize pygame
 p.init()
@@ -22,9 +23,9 @@ playerY = 480
 playerX_change = 0
 
 # Enemy
-enemyImg = p.image.load("resources/enemy.png")
-enemyX = random.random() * 736
-enemyY = random.randint(50, 150)
+enemyImg = p.image.load("resources/enemy.png").convert_alpha()
+enemyX = r.random() * 735
+enemyY = r.randint(50, 150)
 enemyX_change = 0.75
 enemyY_change = 20
 
@@ -36,6 +37,8 @@ bulletY_change = 2.5
 # Ready: Bullet can't be seen
 # Fire: Bullet can be seen
 bullet_state = "ready"
+
+score = 0
 
 
 # method to draw the playerObject on the screen
@@ -51,6 +54,14 @@ def fire_bullet(x, y):
     global bullet_state
     bullet_state = "fire"
     screen.blit(bulletImg, (x + 16, y + 10))
+
+
+def isCollision(enemyX, enemyY, bulletX, bulletY):
+    distance = m.sqrt((m.pow((enemyY - bulletY), 2) + m.pow((enemyX - bulletX), 2)))
+    if distance < 27:
+        return True
+    else:
+        return False
 
 
 # Game Loop until Player presses the close button
@@ -102,6 +113,16 @@ while running:
     if bullet_state == "fire":
         fire_bullet(bulletX, bulletY)
         bulletY -= bulletY_change
+
+    # Collision
+    collision = isCollision(enemyX, enemyY, bulletX, bulletY)
+    if collision:
+        bulletY = 480
+        bullet_state = "ready"
+        score += 1
+        print(score)
+        enemyX = r.random() * 736
+        enemyY = r.randint(50, 150)
     player(playerX, playerY)
     enemy(enemyX, enemyY)
     p.display.update()
