@@ -23,11 +23,18 @@ playerY = 480
 playerX_change = 0
 
 # Enemy
-enemyImg = p.image.load("resources/enemy.png").convert_alpha()
-enemyX = r.random() * 735
-enemyY = r.randint(50, 150)
-enemyX_change = 0.75
-enemyY_change = 20
+enemyImg = []
+enemyX = []
+enemyY = []
+enemyX_change = []
+enemyY_change = []
+enemyNumber = 6
+for i in range(enemyNumber):
+    enemyImg.append(p.image.load("resources/enemy.png").convert_alpha())
+    enemyX.append(r.random() * 735)
+    enemyY.append(r.randint(50, 150))
+    enemyX_change.append(0.75)
+    enemyY_change.append(20)
 
 # Bullet
 bulletImg = p.image.load("resources/bullet.png").convert_alpha()
@@ -46,8 +53,8 @@ def player(x, y):
     screen.blit(playerImg, (x, y))
 
 
-def enemy(x, y):
-    screen.blit(enemyImg, (x, y))
+def enemy(x, y,i):
+    screen.blit(enemyImg[i], (x, y))
 
 
 def fire_bullet(x, y):
@@ -101,10 +108,21 @@ while running:
     elif playerX >= 736:
         playerX = 736
 
-    enemyX += enemyX_change
-    if enemyX <= 0 or enemyX >= 736:
-        enemyX_change *= -1
-        enemyY += enemyY_change
+    for i in range(enemyNumber):
+        enemyX[i] += enemyX_change[i]
+        if enemyX[i] <= 0 or enemyX[i] >= 736:
+            enemyX_change[i] *= -1
+            enemyY[i] += enemyY_change[i]
+        collision = isCollision(enemyX[i], enemyY[i], bulletX, bulletY)
+        # Collision
+        if collision:
+            bulletY = 480
+            bullet_state = "ready"
+            score += 1
+            print(score)
+            enemyX[i] = r.random() * 736
+            enemyY[i] = r.randint(50, 150)
+        enemy(enemyX[i], enemyY[i],i)
 
     # Bullet Movement
     if bulletY < 0:
@@ -114,15 +132,5 @@ while running:
         fire_bullet(bulletX, bulletY)
         bulletY -= bulletY_change
 
-    # Collision
-    collision = isCollision(enemyX, enemyY, bulletX, bulletY)
-    if collision:
-        bulletY = 480
-        bullet_state = "ready"
-        score += 1
-        print(score)
-        enemyX = r.random() * 736
-        enemyY = r.randint(50, 150)
     player(playerX, playerY)
-    enemy(enemyX, enemyY)
     p.display.update()
