@@ -40,12 +40,21 @@ for i in range(enemyNumber):
 bulletImg = p.image.load("resources/bullet.png").convert_alpha()
 bulletX = 0
 bulletY = 480
-bulletY_change = 2.5
+bulletY_change = 3
 # Ready: Bullet can't be seen
 # Fire: Bullet can be seen
 bullet_state = "ready"
 
-score = 0
+# score
+scoreValue = 0
+font = p.font.Font("resources/DolphinNormal.ttf", 48)
+
+textCoordinates = (10, 10)
+
+
+def show_score(coordinates):
+    score = font.render("Score: " + str(scoreValue), True, (255, 255, 255))
+    screen.blit(score, coordinates)
 
 
 # method to draw the playerObject on the screen
@@ -53,7 +62,7 @@ def player(x, y):
     screen.blit(playerImg, (x, y))
 
 
-def enemy(x, y,i):
+def enemy(x, y, i):
     screen.blit(enemyImg[i], (x, y))
 
 
@@ -118,11 +127,10 @@ while running:
         if collision:
             bulletY = 480
             bullet_state = "ready"
-            score += 1
-            print(score)
+            scoreValue += 1
             enemyX[i] = r.random() * 736
             enemyY[i] = r.randint(50, 150)
-        enemy(enemyX[i], enemyY[i],i)
+        enemy(enemyX[i], enemyY[i], i)
 
     # Bullet Movement
     if bulletY < 0:
@@ -133,4 +141,5 @@ while running:
         bulletY -= bulletY_change
 
     player(playerX, playerY)
+    show_score(textCoordinates)
     p.display.update()
