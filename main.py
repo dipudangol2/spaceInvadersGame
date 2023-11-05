@@ -53,6 +53,7 @@ bullet_state = "ready"
 # score
 scoreValue = 0
 font = p.font.Font("resources/DolphinNormal.ttf", 48)
+overFont = p.font.Font("resources/DolphinNormal.ttf", 96)
 
 textCoordinates = (10, 10)
 
@@ -83,6 +84,11 @@ def isCollision(enemyX, enemyY, bulletX, bulletY):
         return True
     else:
         return False
+
+
+def gameOverText():
+    overText = overFont.render("GAME OVER ", True, (255, 255, 255))
+    screen.blit(overText, (120,200))
 
 
 # Game Loop until Player presses the close button
@@ -125,6 +131,13 @@ while running:
         playerX = 736
 
     for i in range(enemyNumber):
+        # Game over
+        if enemyY[i] > 440:
+            for j in range(enemyNumber):
+                enemyY[j] = 2000
+            gameOverText()
+            break
+
         enemyX[i] += enemyX_change[i]
         if enemyX[i] <= 0 or enemyX[i] >= 736:
             enemyX_change[i] *= -1
@@ -132,7 +145,7 @@ while running:
         collision = isCollision(enemyX[i], enemyY[i], bulletX, bulletY)
         # Collision
         if collision:
-            explosionSound=mixer.Sound('resources/explosion.wav')
+            explosionSound = mixer.Sound("resources/explosion.wav")
             explosionSound.play()
             bulletY = 480
             bullet_state = "ready"
