@@ -1,28 +1,30 @@
-import pygame as p
-import random as r
-import math as m
+import pygame, sys
+import random
+import math
 from pygame import mixer
 
 # Initialize pygame
-p.init()
+pygame.init()
 
 # Create the screen
-screen = p.display.set_mode((800, 600))
+screen = pygame.display.set_mode((800, 600))
 
+
+mainClock = pygame.time.Clock()
 # Add Backgroundd
-background = p.image.load("resources/background.png").convert()
+background = pygame.image.load("resources/background.png").convert()
 
 # Background sound
 mixer.music.load("resources/background.wav")
 mixer.music.play(-1)
 
 # Set Title and Icon
-p.display.set_caption("Space Invaders")
-icon = p.image.load("resources/ufo.png").convert_alpha()
-p.display.set_icon(icon)
+pygame.display.set_caption("Space Invaders")
+icon = pygame.image.load("resources/ufo.png").convert_alpha()
+pygame.display.set_icon(icon)
 
 # Player
-playerImg = p.image.load("resources/player.png").convert_alpha()
+playerImg = pygame.image.load("resources/player.png").convert_alpha()
 playerX = 370
 playerY = 480
 playerX_change = 0
@@ -35,25 +37,25 @@ enemyX_change = []
 enemyY_change = []
 enemyNumber = 6
 for i in range(enemyNumber):
-    enemyImg.append(p.image.load("resources/enemy.png").convert_alpha())
-    enemyX.append(r.random() * 735)
-    enemyY.append(r.randint(50, 150))
-    enemyX_change.append(0.75)
-    enemyY_change.append(20)
+    enemyImg.append(pygame.image.load("resources/enemy.png").convert_alpha())
+    enemyX.append(random.random() * 735)
+    enemyY.append(random.randint(50, 150))
+    enemyX_change.append(4)
+    enemyY_change.append(25)
 
 # Bullet
-bulletImg = p.image.load("resources/bullet.png").convert_alpha()
+bulletImg = pygame.image.load("resources/bullet.png").convert_alpha()
 bulletX = 0
 bulletY = 480
-bulletY_change = 3
+bulletY_change = 10
 # Ready: Bullet can't be seen
 # Fire: Bullet can be seen
 bullet_state = "ready"
 
 # score
 scoreValue = 0
-font = p.font.Font("resources/DolphinNormal.ttf", 48)
-overFont = p.font.Font("resources/DolphinNormal.ttf", 96)
+font = pygame.font.Font("resources/DolphinNormal.ttf", 48)
+overFont = pygame.font.Font("resources/DolphinNormal.ttf", 96)
 
 textCoordinates = (10, 10)
 
@@ -79,7 +81,7 @@ def fire_bullet(x, y):
 
 
 def isCollision(enemyX, enemyY, bulletX, bulletY):
-    distance = m.sqrt((m.pow((enemyY - bulletY), 2) + m.pow((enemyX - bulletX), 2)))
+    distance = math.sqrt((math.pow((enemyY - bulletY), 2) + math.pow((enemyX - bulletX), 2)))
     if distance < 27:
         return True
     else:
@@ -88,43 +90,48 @@ def isCollision(enemyX, enemyY, bulletX, bulletY):
 
 def gameOverText():
     overText = overFont.render("GAME OVER ", True, (255, 255, 255))
-    screen.blit(overText, (120,200))
+    screen.blit(overText, (120, 200))
 
 
+left = False
+right = False
 # Game Loop until Player presses the close button
-running = True
-while running:
+while True:
     screen.fill((0, 0, 0))
     # Background Image
     screen.blit(background, (0, 0))
+    movement = 0
+    if right == True:
+        movement += 4
+    if left == True:
+        movement -= 4
     # iterates through all the event happening inside the window
-    for event in p.event.get():
-        if event.type == p.QUIT:
-            running = False
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            pygame.quit()
+            sys.exit()
         # if Keystroke is pressed check whether it is right key or left key
-        if event.type == p.KEYDOWN:
-            if event.key == p.K_ESCAPE:
-                running = False
-            if event.key == p.K_LEFT:
-                playerX_change = -1
-                print("Left arrow is pressed")
-            elif event.key == p.K_RIGHT:
-                playerX_change = 1
-                print("Right arrow is pressed")
-            elif event.key == p.K_SPACE:
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_ESCAPE:
+                pygame.quit()
+                sys.exit()
+            if event.key == pygame.K_LEFT:
+                left = True
+            elif event.key == pygame.K_RIGHT:
+                right = True
+            elif event.key == pygame.K_SPACE:
                 if bullet_state == "ready":
                     bulletSound = mixer.Sound("resources/laser.wav")
                     bulletSound.play()
                     bulletX = playerX
                     fire_bullet(bulletX, bulletY)
-            else:
-                print("Keystroke event")
-        if event.type == p.KEYUP:
-            if event.key == p.K_LEFT or event.key == p.K_RIGHT:
-                playerX_change = 0
-                print("Keystroke released")
+        if event.type == pygame.KEYUP:
+            if event.key == pygame.K_LEFT:
+                left = False
+            if event.key == pygame.K_RIGHT:
+                right = False
 
-    playerX += playerX_change
+    playerX += movement
     if playerX <= 0:
         playerX = 0
     elif playerX >= 736:
@@ -132,7 +139,7 @@ while running:
 
     for i in range(enemyNumber):
         # Game over
-        if enemyY[i] > 440:
+        if enemyY[i] >= 460:
             for j in range(enemyNumber):
                 enemyY[j] = 2000
             gameOverText()
@@ -150,8 +157,8 @@ while running:
             bulletY = 480
             bullet_state = "ready"
             scoreValue += 1
-            enemyX[i] = r.random() * 736
-            enemyY[i] = r.randint(50, 150)
+            enemyX[i] = random.random() * 736
+            enemyY[i] = random.randint(50, 150)
         enemy(enemyX[i], enemyY[i], i)
 
     # Bullet Movement
@@ -164,4 +171,5 @@ while running:
 
     player(playerX, playerY)
     show_score(textCoordinates)
-    p.display.update()
+    mainClock.tick(60)
+    pygame.display.update()
